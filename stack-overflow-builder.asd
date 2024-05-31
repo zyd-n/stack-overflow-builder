@@ -6,5 +6,5 @@
   :license  "AGPL"
   :version "0.0.1"
   :serial t
-  :depends-on (#:fxml)
+  :depends-on (#:fxml #:postmodern #:simple-date/postgres-glue #:local-time #:log4cl)
   :components ((:file "stack-overflow-builder")))
