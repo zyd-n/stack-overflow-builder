@@ -13,9 +13,6 @@ create table users (
   website_url        text,
   location           text,
   about_me           text,
-  profile_image_url  text,
-  email_hash         char(32),
-
 
   constraint users_pk primary key(id)
 );
