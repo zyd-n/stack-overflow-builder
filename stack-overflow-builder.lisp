@@ -2,11 +2,6 @@
   (:use #:cl))
 (in-package #:stack-overflow-builder)
 
-(defparameter *input* #p"t/data/posts-500.xml")
-(defparameter *input2* #p"t/data/badges-30.xml")
-(defparameter *users* #p"t/data/users-100.xml")
-
-
 ;; TODO: We don't have to do this when we create tables from Lisp rather than
 ;; directly with SQL.
 (defvar *camel->snake*
