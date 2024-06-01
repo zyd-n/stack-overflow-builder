@@ -73,6 +73,18 @@
     ("CloseAsOfftopicReasonTypeId" "close-as-offtopic-reason-type-id"))
   "A mapping of column names in CamelCase to snake-case.")
 
+(defvar *numeric-columns*
+  '("id" "user-id" "class" "reputation" "views" "upvotes" "downvotes" "account-id"
+    "post-notice-duration-id" "classid" "score" "view-count" "comment-count"
+    "favorite-count" "last-editor-user-id" "accepted-answer-id" "parent-id"
+    "owner-user-id" "answer-count" "post-id" "post-notice-type-id" "deletion-user-id"
+    "related-post-id" "link-type-id" "post-type-id" "creation-moderator-id"
+    "approval-moderator-id" "deactivation-moderator-id" "flag-type-id"
+    "close-reason-type-id" "close-as-offtopic-reason-type-id"
+    "duplicate-of-question-id" "vote-type-id" "bounty-amount" "suggested-edit-id"
+    "target-rep-change" "target-user-id" "excerpt-post-id" "wiki-post-id" "tag-id"
+    "auto-rename-count" "approved-by-user-id" "post-history-type-id"))
+
 (defvar *patched-time* NIL)
 
 (defun patch-time ()
@@ -108,12 +120,15 @@
 
 (defun clean-row (row)
   "Return a flattened list of columns and their values. Converts strings to numbers when needed."
-  (mapcan (lambda (column)
-            (let* ((name (nth-value 0 (read-from-string (first column))))
-                   (value (second column))
-                   (n (ignore-errors (parse-integer value))))
-              (list `',name (or n value))))
-          (normalize-names row)))
+  (flet ((numeric-column (column value)
+           (when (member (string-downcase (first column)) *numeric-columns* :test #'string=)
+             (parse-integer value))))
+    (mapcan (lambda (column)
+              (let* ((name (nth-value 0 (read-from-string (first column))))
+                     (value (second column))
+                     (n (numeric-column column value)))
+                (list `',name (or n value))))
+            (normalize-names row))))
 
 ;;; Main
 
