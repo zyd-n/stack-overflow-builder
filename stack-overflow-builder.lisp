@@ -131,8 +131,12 @@
           when row
           if (null table) collect row
           else do (handler-case (eval (build-query table row))
-                    (cl-postgres-error:unique-violation () nil)
-                    (cl-postgres-error:foreign-key-violation () nil))
+                    (pg-error:unique-violation () nil)
+                    (pg-error:foreign-key-violation (c)
+                      (log:error
+                       "~%~A~%~%Query: ~A"
+                       (pg:database-error-message c)
+                       (pg:database-error-query c))))
           counting row into rows-processed
           do (fxml.klacks:peek-next data)
              (when (local-time:timestamp>= (local-time:now) log-interval)
