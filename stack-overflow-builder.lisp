@@ -127,7 +127,9 @@
           until (end-of-document-p data)
           when row
           if (null table) collect row
-          else do (eval (build-query table row))
+          else do (handler-case (eval (build-query table row))
+                    (cl-postgres-error:unique-violation () nil)
+                    (cl-postgres-error:foreign-key-violation () nil))
           counting row into rows-processed
           do (fxml.klacks:peek-next data)
              (when (local-time:timestamp>= (local-time:now) log-interval)
