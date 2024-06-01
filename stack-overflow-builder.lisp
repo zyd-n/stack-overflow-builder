@@ -117,7 +117,7 @@
 ;;; Main
 
 (defun build-query (table row)
-  `(pomo:query (:insert-into ',table :set ,@(clean-row row))))
+  `(pg:query (:insert-into ',table :set ,@(clean-row row))))
 
 (defun import-data (source &optional table)
   "Import data from SOURCE pathname. Optionally place data into TABLE using pomo:*database* as the database, otherwise returns data to standard output."
