@@ -121,10 +121,10 @@
 
 (defun import-data (source &optional table)
   "Import data from SOURCE pathname. Optionally place data into TABLE using pomo:*database* as the database, otherwise returns data to standard output."
-  (patch-time)
   (let ((data (fxml:make-source source))
         (handler (fxml.xmls:make-xmls-builder))
         (log-interval (local-time:timestamp+ (local-time:now) 5 :minute)))
+    (patch-time)
     (log:info "Starting import now at ~a" (local-time:now))
     (loop for row = (grab-row data handler)
           until (end-of-document-p data)
