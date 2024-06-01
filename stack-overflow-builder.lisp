@@ -25,6 +25,7 @@
     ("VoteTypeId" "vote-type-id")
     ("WikiPostId" "wiki-post-id")
     ("FlagTypeId" "flag-type-id")
+    ("LinkTypeId" "link-type-id")
     ("IsAnonymous" "is-anonymous")
     ("AnswerCount" "answer-count")
     ("IsUniversal" "is-universal")
@@ -134,7 +135,7 @@
                     (pg-error:unique-violation () nil)
                     (pg-error:foreign-key-violation (c)
                       (log:error
-                       "~%~A~%~%Query: ~A"
+                       "~%~A~%~%Query: ~A~%"
                        (pg:database-error-message c)
                        (pg:database-error-query c))))
           counting row into rows-processed
