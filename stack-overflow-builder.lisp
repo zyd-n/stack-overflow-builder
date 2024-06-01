@@ -1,5 +1,8 @@
 (defpackage #:stack-overflow-builder
-  (:use #:cl))
+  (:use #:cl)
+  (:local-nicknames
+   (#:pg-error #:cl-postgres-error)
+   (#:pg #:pomo)))
 (in-package #:stack-overflow-builder)
 
 ;; TODO: We don't have to do this when we create tables from Lisp rather than
