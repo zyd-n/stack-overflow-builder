@@ -3,7 +3,7 @@
 (asdf:defsystem #:stack-overflow-builder
   :description "Describe stack-overflow-builder here"
   :author "zyd"
-  :license  "AGPL"
+  :license  "zlib"
   :version "0.0.1"
   :serial t
   :depends-on (#:fxml #:postmodern #:simple-date/postgres-glue #:local-time #:log4cl)
