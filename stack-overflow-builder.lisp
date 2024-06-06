@@ -87,15 +87,6 @@
     "target-rep-change" "target-user-id" "excerpt-post-id" "wiki-post-id" "tag-id"
     "auto-rename-count" "approved-by-user-id" "post-history-type-id"))
 
-(defvar *patched-time* NIL)
-
-(defun patch-time ()
-  (unless *patched-time*
-    (setf cl-postgres:*sql-readtable*
-          (cl-postgres:copy-sql-readtable
-           simple-date-cl-postgres-glue:*simple-date-sql-readtable*)
-          *patched-time* t)))
-
 (defun end-of-document-p (source)
   (eq (fxml.klacks:peek source) :end-document))
 
