@@ -1,12 +1,14 @@
 (defpackage #:stack-overflow-builder
   (:use #:cl)
-  (:local-nicknames
-   (#:pg-error #:cl-postgres-error)
-   (#:pg #:pomo)))
+  (:local-nicknames (#:pg-error #:cl-postgres-error)
+                    (#:pg #:pomo)))
 (in-package #:stack-overflow-builder)
 
-;; TODO: We don't have to do this when we create tables from Lisp rather than
-;; directly with SQL.
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (setf cl-postgres:*sql-readtable*
+        (cl-postgres:copy-sql-readtable
+         simple-date-cl-postgres-glue:*simple-date-sql-readtable*)))
+
 (defvar *camel->snake*
   '(("TagId" "tag-id")
     ("UserId" "user-id")
