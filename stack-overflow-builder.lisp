@@ -114,39 +114,60 @@
   (flet ((numeric-column (column value)
            (when (member (string-downcase (first column)) *numeric-columns* :test #'string=)
              (parse-integer value))))
-    (mapcan (lambda (column)
+    (mapcar (lambda (column)
               (let* ((name (nth-value 0 (read-from-string (first column))))
                      (value (second column))
                      (n (numeric-column column value)))
                 (list `',name (or n value))))
             (normalize-names row))))
 
-;;; Main
+(defun row-values (row) (values (mapcar #'first row)
+                                (mapcar #'second row)))
 
-(defun build-query (table row)
-  `(pg:query (:insert-into ',table :set ,@(clean-row row))))
+(defun build-query (table columns values)
+  `(pg:query (:insert-rows-into ',table
+              :columns ,@columns
+              :values ',values
+              :on-conflict 'id :do-nothing)))
 
-(defun import-data (source &optional table)
-  "Import data from SOURCE pathname. Optionally place data into TABLE using pomo:*database* as the database, otherwise returns data to standard output."
-  (let ((data (fxml:make-source (pathname source)))
+(defun push-key-value (columns values hash-table)
+  "Set key COLUMNS with value VALUES in HASH-TABLE. Creates key COLUMNS if needed."
+  (if (gethash columns hash-table)
+      (push values (gethash columns hash-table))
+      (setf (gethash columns hash-table)
+            (list values))))
+
+(defun maybe-insert-rows (table hash-table &key now (count 1000))
+  (loop for key being the hash-keys of hash-table
+        do (let ((rows (gethash key hash-table)))
+             (unless (null rows)
+               (when (or now (= (length rows) count))
+                 (eval (build-query table key rows))
+                 (setf (gethash key hash-table) nil))))))
+
+(defun import-data (source &optional table (count 1000))
+  "Import data from SOURCE pathname. Optionally place data into TABLE using
+pomo:*database* as the database, otherwise returns data to standard output."
+  (let ((log-interval (local-time:timestamp+ (local-time:now) 5 :minute))
+        (data (fxml:make-source (pathname source)))
         (handler (fxml.xmls:make-xmls-builder))
-        (log-interval (local-time:timestamp+ (local-time:now) 5 :minute)))
-    (patch-time)
-    (log:info "Starting import now at ~a" (local-time:now))
-    (loop for row = (grab-row data handler)
-          until (end-of-document-p data)
-          when row
-          if (null table) collect row
-          else do (handler-case (eval (build-query table row))
-                    (pg-error:unique-violation () nil)
-                    (pg-error:foreign-key-violation (c)
-                      (log:error
-                       "~%~A~%~%Query: ~A~%"
-                       (pg:database-error-message c)
-                       (pg:database-error-query c))))
-          counting row into rows-processed
-          do (fxml.klacks:peek-next data)
-             (when (local-time:timestamp>= (local-time:now) log-interval)
-               (log:info "Rows processed: ~d~%" rows-processed)
-               (setf log-interval (local-time:timestamp+ (local-time:now) 5 :minute))))))
-
+        (hash-table (make-hash-table :test #'equal)))
+    (flet ((print-rows ()
+             (loop for row = (grab-row data handler)
+                   when row collect it
+                   until (end-of-document-p data)
+                   do (fxml.klacks:peek-next data)))
+           (import-table ()
+             (log:info "Starting import now.~%")
+             (loop for row = (grab-row data handler)
+                   when row do (multiple-value-bind (columns values) (row-values (clean-row row))
+                                 (push-key-value columns values hash-table))
+                   and count row into rows-processed
+                   until (end-of-document-p data)
+                   do (maybe-insert-rows table hash-table :count count)
+                      (fxml.klacks:peek-next data)
+                      (when (local-time:timestamp>= (local-time:now) log-interval)
+                        (log:info "Rows processed: ~d~%" rows-processed)
+                        (setf log-interval (local-time:timestamp+ (local-time:now) 5 :minute)))
+                   finally (maybe-insert-rows table hash-table :now T :count count))))
+      (if table (import-table) (print-rows)))))
