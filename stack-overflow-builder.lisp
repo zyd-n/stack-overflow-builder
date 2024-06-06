@@ -99,10 +99,8 @@
                (string= qualified-name "row"))
       (first (rest (fxml.klacks:serialize-element source handler))))))
 
-;;; Row Mangling
-
 (defun normalize-names (row)
-  "Ensure columns are transformed from CamelCase to snake-case."
+  "Ensure columns are transformed from CamelCase to kebab-case (that is automatically converted to snake_case)."
   (flet ((normalize (column)
            (let* ((name (first column))
                   (value (second column))
