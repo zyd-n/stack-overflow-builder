@@ -26,7 +26,7 @@ create table badges (
   tag_based    boolean         not null,
 
   constraint badges_pk primary key(id),
-  constraint badges__users__fk foreign key(user_id) references users(id)
+  -- constraint badges__users__fk foreign key(user_id) references users(id)
 );
 
 ---- Posts ----
@@ -72,13 +72,14 @@ create table posts (
   answer_count                    integer,
   closed_date                     timestamp,
   community_owned_date            timestamp,
+  contentlicense                  text,
 
-  constraint posts_pk                  primary key(id),
-  constraint posts__post_types__fk     foreign key(post_type_id) references post_types (id),
-  constraint posts__users__fk          foreign key(owner_user_id) references users (id),
-  constraint posts__users_001__fk      foreign key(last_editor_user_id) references users (id),
-  constraint posts__posts__fk          foreign key(accepted_answer_id) references posts (id),
-  constraint posts__posts_001__fk      foreign key(parent_id) references posts (id)
+  constraint posts_pk                  primary key(id)
+  -- constraint posts__post_types__fk     foreign key(post_type_id) references post_types (id),
+  -- constraint posts__users__fk          foreign key(owner_user_id) references users (id),
+  -- constraint posts__users_001__fk      foreign key(last_editor_user_id) references users (id),
+  -- constraint posts__posts__fk          foreign key(accepted_answer_id) references posts (id),
+  -- constraint posts__posts_001__fk      foreign key(parent_id) references posts (id)
 );
 
 
@@ -107,9 +108,9 @@ create table post_links (
   related_post_id     integer     not null,
   link_type_id        smallint    not null,
 
-  constraint post_links_pk             primary key(id),
-  constraint post_links__posts__fk     foreign key(post_id) references posts (id),
-  constraint post_links__posts_001__fk foreign key(related_post_id) references posts (id)
+  constraint post_links_pk             primary key(id)
+  -- constraint post_links__posts__fk     foreign key(post_id) references posts (id),
+  -- constraint post_links__posts_001__fk foreign key(related_post_id) references posts (id)
 );
 
 create table comments (
@@ -121,9 +122,9 @@ create table comments (
   user_display_name    text,
   user_id              integer,
 
-  constraint comments_pk         primary key(id),
-  constraint comments__posts__fk foreign key(post_id) references posts (id),
-  constraint comments__users__fk foreign key(user_id) references users (id)
+  constraint comments_pk         primary key(id)
+  -- constraint comments__posts__fk foreign key(post_id) references posts (id)
+  -- constraint comments__users__fk foreign key(user_id) references users (id)
 );
 
 ---- Closed ----
@@ -290,9 +291,9 @@ create table tags (
 
 
   constraint tags_pk             primary key(id),
-  constraint tags_name_unique    unique(tag_name),
-  constraint tags__posts__fk     foreign key(excerpt_post_id) references posts (id),
-  constraint tags__posts_001__fk foreign key(wiki_post_id) references posts (id)
+  constraint tags_name_unique    unique(tag_name)
+  -- constraint tags__posts__fk     foreign key(excerpt_post_id) references posts (id),
+  -- constraint tags__posts_001__fk foreign key(wiki_post_id) references posts (id)
 );
 
 create table post_tags (
