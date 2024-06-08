@@ -121,8 +121,7 @@
                 (list `',name (or n value))))
             (normalize-names row))))
 
-(defun row-values (row) (values (mapcar #'first row)
-                                (mapcar #'second row)))
+(defun row-values (row) (values (mapcar #'first row) (mapcar #'second row)))
 
 (defun build-query (table columns values)
   `(pg:query (:insert-rows-into ',table
