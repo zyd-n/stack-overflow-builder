@@ -36,12 +36,12 @@
 (defun camel->kebab (column-name)
   "Convert a CamelCase name to kebab-case."
   (let ((kebab (make-array 0 :element-type 'character :fill-pointer 0 :adjustable t)))
-    (vector-push-extend (char-downcase (elt column-name 0)) kebab)
+    (vector-push-extend (elt column-name 0) kebab)
     (loop for char across (subseq column-name 1)
           do (when (char= char (char-upcase char))
                (vector-push-extend #\- kebab))
-             (vector-push-extend (char-downcase char) kebab)
-          finally (return kebab))))
+             (vector-push-extend char kebab)
+          finally (return (string-downcase kebab)))))
 
 (defun normalize-names (row)
   "Ensure columns are transformed from CamelCase to kebab-case (that is automatically converted to snake_case)."
