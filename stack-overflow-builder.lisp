@@ -2,7 +2,8 @@
   (:use #:cl)
   (:local-nicknames (#:pg #:postmodern)
                     (#:%pg #:cl-postgres)
-                    (#:pg-error #:cl-postgres-error)))
+                    (#:pg-error #:cl-postgres-error)
+                    (#:bt #:bordeaux-threads-2)))
 (in-package #:stack-overflow-builder)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)

@@ -6,5 +6,5 @@
   :license  "zlib"
   :version "0.0.1"
   :serial t
-  :depends-on (#:fxml #:postmodern #:simple-date/postgres-glue #:local-time #:log4cl #:serapeum)
+  :depends-on (#:fxml #:postmodern #:simple-date/postgres-glue #:local-time #:log4cl #:serapeum #:bordeaux-threads)
   :components ((:file "stack-overflow-builder")))
