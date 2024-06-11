@@ -39,31 +39,23 @@
     (vector-push-extend (elt column-name 0) kebab)
     (loop for char across (subseq column-name 1)
           do (when (char= char (char-upcase char))
-               (vector-push-extend #\- kebab))
+               (vector-push-extend #\_ kebab))
              (vector-push-extend char kebab)
           finally (return (string-downcase kebab)))))
 
 (defun normalize-names (row)
   "Ensure columns are transformed from CamelCase to kebab-case (that is automatically converted to snake_case)."
-  (flet ((normalize (column)
-           (let* ((name (first column))
-                  (value (second column))
-                  (snake-case-name (camel->kebab name)))
-             (list (or snake-case-name name) value))))
-    (loop for column in row while row
-          collecting (normalize column))))
+  (loop for (name value) in row
+        collecting (list (camel->kebab name) value)))
 
 (defun clean-row (row)
   "Return a flattened list of columns and their values. Converts strings to numbers when needed."
   (flet ((numeric-column (column value)
-           (when (member (string-downcase (first column)) *numeric-columns* :test #'string=)
+           (when (member column *numeric-columns* :test #'string=)
              (parse-integer value))))
-    (mapcar (lambda (column)
-              (let* ((name (nth-value 0 (read-from-string (first column))))
-                     (value (second column))
-                     (n (numeric-column column value)))
-                (list `',name (or n value))))
-            (normalize-names row))))
+    (loop for (name value) in (normalize-names row)
+          for n = (numeric-column name value)
+          collecting (list name (or n value)))))
 
 (defun row-values (row) (values (mapcar #'first row) (mapcar #'second row)))
 
@@ -72,6 +64,12 @@
               :columns ,@columns
               :values ',values
               :on-conflict 'id :do-nothing)))
+
+(defun bulk-copy (table columns rows)
+  (let ((writer (%pg:open-db-writer pomo:*database* table columns)))
+    (unwind-protect (loop for row in rows
+                          do (%pg:db-write-row writer row))
+      (%pg:close-db-writer writer))))
 
 (defun push-key-value (columns values hash-table)
   "Set key COLUMNS with value VALUES in HASH-TABLE. Creates key COLUMNS if needed."
@@ -85,7 +83,7 @@
         do (let ((rows (gethash key hash-table)))
              (unless (null rows)
                (when (or now (= (length rows) count))
-                 (eval (build-query table key rows))
+                 (bulk-copy table key rows)
                  (setf (gethash key hash-table) nil))))))
 
 (defun import-data (source &optional table (count 1000))
@@ -106,11 +104,11 @@ pomo:*database* as the database, otherwise returns data to standard output."
                    when row do (multiple-value-bind (columns values) (row-values (clean-row row))
                                  (push-key-value columns values hash-table))
                    and count row into rows-processed
-                   until (end-of-document-p data)
                    do (maybe-insert-rows table hash-table :count count)
-                      (fxml.klacks:peek-next data)
+                      (fxml.klacks:find-element data "row")
                       (when (local-time:timestamp>= (local-time:now) log-interval)
                         (log:info "Rows processed: ~d~%" rows-processed)
                         (setf log-interval (local-time:timestamp+ (local-time:now) 5 :minute)))
+                   until (end-of-document-p data)
                    finally (maybe-insert-rows table hash-table :now T :count count))))
       (if table (import-table) (print-rows)))))
