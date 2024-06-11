@@ -3,7 +3,8 @@
   (:local-nicknames (#:pg #:postmodern)
                     (#:%pg #:cl-postgres)
                     (#:pg-error #:cl-postgres-error)
-                    (#:bt #:bordeaux-threads-2)))
+                    (#:bt #:bordeaux-threads-2)
+                    (#:ll #:lparallel)))
 (in-package #:stack-overflow-builder)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
