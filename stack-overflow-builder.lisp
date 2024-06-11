@@ -10,7 +10,6 @@
         (cl-postgres:copy-sql-readtable
          simple-date-cl-postgres-glue:*simple-date-sql-readtable*)))
 
-
 (defclass posts ()
   ((id                       :col-type integer   :accessor id)
    (tags                     :col-type text      :accessor tags)
@@ -38,18 +37,6 @@
   (:metaclass pg:dao-class)
   (:table-name posts))
 
-
-(defvar *numeric-columns*
-  '("id" "user_id" "class" "reputation" "views" "upvotes" "downvotes" "account_id"
-    "post_notice_duration_id" "classid" "score" "view_count" "comment_count"
-    "favorite_count" "last_editor_user_id" "accepted_answer_id" "parent_id"
-    "owner_user_id" "answer_count" "post_id" "post_notice_type_id" "deletion_user_id"
-    "related_post_id" "link_type_id" "post_type_id" "creation_moderator_id"
-    "approval_moderator_id" "deactivation_moderator_id" "flag_type_id"
-    "close_reason_type_id" "close_as_offtopic_reason_type_id"
-    "duplicate_of_question_id" "vote_type_id" "bounty_amount" "suggested_edit_id"
-    "target_rep_change" "target_user_id" "excerpt_post_id" "wiki_post_id" "tag_id"
-    "auto_rename_count" "approved_by_user_id" "post_history_type_id"))
 
 (defun end-of-document-p (source)
   (eq (fxml.klacks:peek source) :end-document))
@@ -116,29 +103,27 @@
                  (bulk-copy table key rows)
                  (setf (gethash key hash-table) nil))))))
 
-(defun import-data (source &optional table (count 1000))
-  "Import data from SOURCE pathname. Optionally place data into TABLE using
-pomo:*database* as the database, otherwise returns data to standard output."
+(defun print-rows (source)
+  (with-open-file (s (pathname source) :direction :input)
+    (loop :for row = (read-line s nil) :while row
+          :when (let ((node (xmls:parse row)))
+                  (and node (xmls:node-attrs node)))
+          :collect it)))
+
+(defun import-data (source table &optional (count 1000))
   (let ((log-interval (local-time:timestamp+ (local-time:now) 5 :minute))
         (data (fxml:make-source (pathname source)))
         (handler (fxml.xmls:make-xmls-builder))
         (hash-table (make-hash-table :test #'equal)))
-    (flet ((print-rows ()
-             (loop for row = (grab-row data handler)
-                   when row collect it
-                   until (end-of-document-p data)
-                   do (fxml.klacks:peek-next data)))
-           (import-table ()
-             (log:info "Starting import now.~%")
-             (loop for row = (grab-row data handler)
-                   when row do (multiple-value-bind (columns values) (row-values (clean-row row))
-                                 (push-key-value columns values hash-table))
-                   and count row into rows-processed
-                   do (maybe-insert-rows table hash-table :count count)
-                      (fxml.klacks:find-element data "row")
-                      (when (local-time:timestamp>= (local-time:now) log-interval)
-                        (log:info "Rows processed: ~d~%" rows-processed)
-                        (setf log-interval (local-time:timestamp+ (local-time:now) 5 :minute)))
-                   until (end-of-document-p data)
-                   finally (maybe-insert-rows table hash-table :now T :count count))))
-      (if table (import-table) (print-rows)))))
+    (log:info "Starting import now.~%")
+    (loop for row = (grab-row data handler)
+          when row do (multiple-value-bind (columns values) (row-values (clean-row row))
+                        (push-key-value columns values hash-table))
+          and count row into rows-processed
+          do (maybe-insert-rows table hash-table :count count)
+             (fxml.klacks:find-element data "row")
+             (when (local-time:timestamp>= (local-time:now) log-interval)
+               (log:info "Rows processed: ~d~%" rows-processed)
+               (setf log-interval (local-time:timestamp+ (local-time:now) 5 :minute)))
+          until (end-of-document-p data)
+          finally (maybe-insert-rows table hash-table :now T :count count))))
