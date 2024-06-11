@@ -10,17 +10,46 @@
         (cl-postgres:copy-sql-readtable
          simple-date-cl-postgres-glue:*simple-date-sql-readtable*)))
 
+
+(defclass posts ()
+  ((id                       :col-type integer   :accessor id)
+   (tags                     :col-type text      :accessor tags)
+   (body                     :col-type text      :accessor body)
+   (title                    :col-type text      :accessor title)
+   (score                    :col-type integer   :accessor score)
+   (parent-id                :col-type integer   :accessor parent-id)
+   (view-count               :col-type integer   :accessor view-count)
+   (closed-date              :col-type timestamp :accessor closed-date)
+   (post-type-id             :col-type smallint  :accessor post-type-id)
+   (answer-count             :col-type integer   :accessor answer-count)
+   (creation-date            :col-type timestamp :accessor creation-date)
+   (comment-count            :col-type integer   :accessor comment-count)
+   (owner-user-id            :col-type integer   :accessor owner-user-id)
+   (deletion-date            :col-type timestamp :accessor deletion-date)
+   (favorite-count           :col-type integer   :accessor favorite-count)
+   (last-edit-date           :col-type timestamp :accessor last-edit-date)
+   (content-license          :col-type text      :accessor content-license)
+   (accepted-answer-id       :col-type integer   :accessor accepted-answer-id)
+   (owner-display-name       :col-type text      :accessor owner-display-name)
+   (last-activity-date       :col-type timestamp :accessor last-activity-date)
+   (last-editor-user-id      :col-type integer   :accessor last-editor-user-id)
+   (community-owned-date     :col-type timestamp :accessor community-owned-date)
+   (last-editor-display-name :col-type text      :accessor last-editor-display-name))
+  (:metaclass pg:dao-class)
+  (:table-name posts))
+
+
 (defvar *numeric-columns*
-  '("id" "user-id" "class" "reputation" "views" "upvotes" "downvotes" "account-id"
-    "post-notice-duration-id" "classid" "score" "view-count" "comment-count"
-    "favorite-count" "last-editor-user-id" "accepted-answer-id" "parent-id"
-    "owner-user-id" "answer-count" "post-id" "post-notice-type-id" "deletion-user-id"
-    "related-post-id" "link-type-id" "post-type-id" "creation-moderator-id"
-    "approval-moderator-id" "deactivation-moderator-id" "flag-type-id"
-    "close-reason-type-id" "close-as-offtopic-reason-type-id"
-    "duplicate-of-question-id" "vote-type-id" "bounty-amount" "suggested-edit-id"
-    "target-rep-change" "target-user-id" "excerpt-post-id" "wiki-post-id" "tag-id"
-    "auto-rename-count" "approved-by-user-id" "post-history-type-id"))
+  '("id" "user_id" "class" "reputation" "views" "upvotes" "downvotes" "account_id"
+    "post_notice_duration_id" "classid" "score" "view_count" "comment_count"
+    "favorite_count" "last_editor_user_id" "accepted_answer_id" "parent_id"
+    "owner_user_id" "answer_count" "post_id" "post_notice_type_id" "deletion_user_id"
+    "related_post_id" "link_type_id" "post_type_id" "creation_moderator_id"
+    "approval_moderator_id" "deactivation_moderator_id" "flag_type_id"
+    "close_reason_type_id" "close_as_offtopic_reason_type_id"
+    "duplicate_of_question_id" "vote_type_id" "bounty_amount" "suggested_edit_id"
+    "target_rep_change" "target_user_id" "excerpt_post_id" "wiki_post_id" "tag_id"
+    "auto_rename_count" "approved_by_user_id" "post_history_type_id"))
 
 (defun end-of-document-p (source)
   (eq (fxml.klacks:peek source) :end-document))
