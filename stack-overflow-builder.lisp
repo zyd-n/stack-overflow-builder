@@ -1,7 +1,8 @@
 (defpackage #:stack-overflow-builder
   (:use #:cl)
-  (:local-nicknames (#:pg-error #:cl-postgres-error)
-                    (#:pg #:pomo)))
+  (:local-nicknames (#:pg #:postmodern)
+                    (#:%pg #:cl-postgres)
+                    (#:pg-error #:cl-postgres-error)))
 (in-package #:stack-overflow-builder)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)

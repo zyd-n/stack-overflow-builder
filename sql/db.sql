@@ -72,9 +72,9 @@ create table posts (
   answer_count                    integer,
   closed_date                     timestamp,
   community_owned_date            timestamp,
-  content_license                  text,
+  content_license                 text
 
-  constraint posts_pk                  primary key(id)
+  -- constraint posts_pk                  primary key(id)
   -- constraint posts__post_types__fk     foreign key(post_type_id) references post_types (id),
   -- constraint posts__users__fk          foreign key(owner_user_id) references users (id),
   -- constraint posts__users_001__fk      foreign key(last_editor_user_id) references users (id),
