@@ -6,7 +6,7 @@
   :license  "zlib"
   :version "0.0.1"
   :serial t
-  :depends-on (#:fxml
+  :depends-on (#:xmls
                #:postmodern
                #:simple-date/postgres-glue
                #:local-time
