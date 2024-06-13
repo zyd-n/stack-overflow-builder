@@ -12,7 +12,7 @@
   (setf cl-postgres:*sql-readtable*
         (cl-postgres:copy-sql-readtable simple-date-cl-postgres-glue:*simple-date-sql-readtable*)
         ll:*kernel*
-        (ll:make-kernel 8 :name "stack-overflow-builder")))
+        (ll:make-kernel 16 :name "stack-overflow-builder")))
 
 (defvar *numeric-columns*
   '("id" "user-id" "class" "reputation" "views" "upvotes" "downvotes" "account-id"
@@ -30,18 +30,18 @@
   "Convert a CamelCase name to kebab-case."
   (let ((kebab (make-array 0 :element-type 'character :fill-pointer 0 :adjustable t)))
     (vector-push-extend (elt column-name 0) kebab)
-    (loop for char across (subseq column-name 1)
-          do (when (char= char (char-upcase char))
-               (vector-push-extend #\- kebab))
-             (vector-push-extend char kebab)
-          finally (return (string-downcase kebab)))))
+    (loop :for char across (subseq column-name 1)
+          :do (when (char= char (char-upcase char))
+                (vector-push-extend #\- kebab))
+              (vector-push-extend char kebab)
+          :finally (return (string-downcase kebab)))))
 
 (defun normalize-names (row)
   "Ensure columns are transformed from CamelCase to kebab-case (that is
 automatically converted to snake_case by Postmodern during a
 transaction/query)."
-  (loop for (name value) in row
-        collecting (list (camel->kebab name) value)))
+  (loop :for (name value) in row
+        :collecting (list (camel->kebab name) value)))
 
 (defun clean-row (row)
   "Return a flattened list of columns and their values. Converts strings to
@@ -49,9 +49,9 @@ numbers when needed."
   (flet ((numeric-column (column value)
            (when (member column *numeric-columns* :test #'string=)
              (parse-integer value))))
-    (loop for (name value) in (normalize-names row)
-          for n = (numeric-column name value)
-          collecting (list `',(read-from-string name) (or n value)))))
+    (loop :for (name value) in (normalize-names row)
+          :for n = (numeric-column name value)
+          :collecting (list `',(read-from-string name) (or n value)))))
 
 (defun row-values (row)
   (values (mapcar #'first row)
