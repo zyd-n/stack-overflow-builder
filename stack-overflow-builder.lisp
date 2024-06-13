@@ -72,6 +72,9 @@ numbers when needed."
 (defun 5min ()
   (local-time:timestamp+ (local-time:now) 5 :minute))
 
+(defun skip-count (table)
+  (caar (pg:query (format nil "select count (*) from ~s" table))))
+
 (defun insert-rows (rows table)
   (unless (null rows)
     (pg:with-transaction ()
