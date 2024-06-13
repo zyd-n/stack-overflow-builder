@@ -10,8 +10,9 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (setf cl-postgres:*sql-readtable*
-        (cl-postgres:copy-sql-readtable
-         simple-date-cl-postgres-glue:*simple-date-sql-readtable*)))
+        (cl-postgres:copy-sql-readtable simple-date-cl-postgres-glue:*simple-date-sql-readtable*)
+        ll:*kernel*
+        (ll:make-kernel 8 :name "stack-overflow-builder")))
 
 (defvar *numeric-columns*
   '("id" "user-id" "class" "reputation" "views" "upvotes" "downvotes" "account-id"
