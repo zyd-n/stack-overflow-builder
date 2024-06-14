@@ -1,0 +1,50 @@
+#+TITLE: Notes, Plans, and Action Items
+
+
+* ACTION Rewrite table definitions in Lisp
+
+Create a function to execute those table definitions for a DB if this is the
+first time the script is being ran.
+ - Check if they already exist.
+ - Create a condition that can either continue with existing DB table definition
+   or override.
+
+* ACTION Use an explicit DB connection
+
+Instead of connecting to the toplevel we should use an explicit DB connection.
+
+* ACTION Determine how many threads to use for =lparallel=
+
+Rather than hardcode it we should pass an argument to =import-data=. Can we still
+=setf= it in the =eval-when=?
+
+* CLARIFY How should we turn this into a command line script?
+
+Image/binary building:
+- https://lispcookbook.github.io/cl-cookbook/scripting.html
+
+Our image/binary should include our dependencies.
+
+* CLARIFY How should we build the rest of the (sub) tables?
+
+They are
+
+- =post_notice_types=
+- =post_types=
+- =post_notices=
+- =post_links=
+- =close_reason_types=
+- =posts_with_deleted=
+- =close_as_offtopic_reason_types=
+- =flag_types= ?
+- =pending_flags= ?
+- =vote_types=
+- =suggested_edits= ?
+- =suggested_edit_votes= ?
+- =post_feedback= ?
+- =post_tags=
+- =tag_synonyms=
+- =post_history_types= ?
+- =post_history= ?
+
+Those marked with =?= are ones I'm not sure we need.
