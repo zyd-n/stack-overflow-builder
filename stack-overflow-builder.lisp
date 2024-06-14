@@ -73,7 +73,10 @@ numbers when needed."
   (local-time:timestamp+ (local-time:now) 5 :minute))
 
 (defun skip-count (table)
-  (caar (pg:query (format nil "select count (*) from ~s" table))))
+  (let ((count (caar (pg:query (format nil "select count (*) from ~s" table)))))
+    (if (zerop count) 0
+        ;; Account for the first two lines of the file which aren't valid rows
+        (+ 2 count))))
 
 (defun insert-rows (rows table)
   (unless (null rows)
@@ -109,7 +112,7 @@ numbers when needed."
                 :do (read-line s nil)
                     (incf rows-processed)
                     (decf skippable-rows)))
-        (log:info "Starting import now @ row ~:d, fingers crossed.~%~%" rows-processed)
+        (log:info "Starting import now @ row ~:d - fingers crossed.~%~%" rows-processed)
         (loop :while (fill-buffer)
               :do (insert-rows (process-buffer) table)
                   (clear-buffer)
