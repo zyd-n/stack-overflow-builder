@@ -48,3 +48,7 @@ They are
 - =post_history= ?
 
 Those marked with =?= are ones I'm not sure we need.
+
+* Do Foreign Key Constraints make sense for the data dump?
+
+Is there a point to foreign key constraints for a DB that is already made and defined? All it can do is point us to errors that stem from the original database admins, but since we're never adding our own data to these tables, it doesn't seem to make much sense. Considering dropping them entirely, added benefit might be slight performance gains.
