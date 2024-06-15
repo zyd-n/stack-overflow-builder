@@ -72,8 +72,11 @@ numbers when needed."
 (defun 5min ()
   (local-time:timestamp+ (local-time:now) 5 :minute))
 
+(defun count-table (table)
+  (caar (pg:query (format nil "select count (*) from ~s" table))))
+
 (defun skip-count (table)
-  (let ((count (caar (pg:query (format nil "select count (*) from ~s" table)))))
+  (let ((count (count-table table)))
     (if (zerop count) 0
         ;; Account for the first two lines of the file which aren't valid rows
         (+ 2 count))))
@@ -120,4 +123,6 @@ numbers when needed."
                   (when (local-time:timestamp>= (local-time:now) log-interval)
                     (log:info "Rows processed: ~:d" rows-processed)
                     (setf log-interval (5min)))
-              :finally (insert-rows (process-buffer) table))))))
+              :finally (insert-rows (process-buffer) table))
+        (let ((final-count (count-table table)))
+          (log:info "~%~%Done importing table: ~(~a~)~%Final row count: ~:d" table final-count))))))
