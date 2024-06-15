@@ -28,7 +28,7 @@
 
 (defun camel->kebab (column-name)
   "Convert a CamelCase name to kebab-case."
-  (let ((kebab (make-array 0 :element-type 'character :fill-pointer 0 :adjustable t)))
+  (let ((kebab (make-array 0 :element-type 'character :fill-pointer 0 :adjustable T)))
     (vector-push-extend (elt column-name 0) kebab)
     (loop :for char across (subseq column-name 1)
           :do (when (char= char (char-upcase char))
@@ -73,7 +73,7 @@ numbers when needed."
   (local-time:timestamp+ (local-time:now) 5 :minute))
 
 (defun count-table (table)
-  (caar (pg:query (format nil "select count (*) from ~s" table))))
+  (caar (pg:query (format NIL "select count (*) from ~s" table))))
 
 (defun skip-count (table)
   (let ((count (count-table table)))
@@ -96,10 +96,10 @@ numbers when needed."
     (with-open-file (s (pathname filename) :direction :input)
       (flet ((clear-buffer ()
                (dotimes (i count)
-                 (setf (aref buf i) nil)))
+                 (setf (aref buf i) NIL)))
              (fill-buffer  ()
-               (dotimes (i count t)
-                 (let ((row (read-line s nil)))
+               (dotimes (i count T)
+                 (let ((row (read-line s NIL)))
                    (if (null row) (return)
                        (setf (aref buf i) row)))))
              (process-buffer ()
@@ -112,7 +112,7 @@ numbers when needed."
         (log:info "Seeing if any rows are already imported, this could take a while...~%~%")
         (let ((skippable-rows (skip-count table)))
           (loop :until (zerop skippable-rows)
-                :do (read-line s nil)
+                :do (read-line s NIL)
                     (incf rows-processed)
                     (decf skippable-rows)))
         (log:info "Starting import now @ row ~:d - fingers crossed.~%~%" rows-processed)
