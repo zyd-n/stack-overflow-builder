@@ -87,7 +87,7 @@ numbers when needed."
                   (eval (build-query table columns values)))))))
 
 (defun import-data (filename table &optional (count 50000))
-  (let ((buf (make-array count))
+  (let ((buf (make-array count :initial-element NIL))
         (log-interval (5min))
         (rows-processed 0))
     (with-open-file (s (pathname filename) :direction :input)
@@ -101,7 +101,7 @@ numbers when needed."
                        (setf (aref buf i) row)))))
              (process-buffer ()
                (ll:pmap 'vector (lambda (row)
-                                  (let ((parsable (xmls:parse row)))
+                                  (let ((parsable (and row (xmls:parse row))))
                                     (when parsable (clean-row (xmls:node-attrs parsable)))))
                         :size count
                         :parts 16
