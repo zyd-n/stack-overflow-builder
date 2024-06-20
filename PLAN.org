@@ -18,6 +18,21 @@ Instead of connecting to the toplevel we should use an explicit DB connection.
 Rather than hardcode it we should pass an argument to =import-data=. Can we still
 =setf= it in the =eval-when=?
 
+* ACTION Remove =build-query= and =eval=.
+
+We can use =NULL= for when a column doesn't exist in a given row. Figure out a way to order the values if needed. Getting rid of this should be faster as well.
+
+* ACTION =INSERT= many values rather than many inserts in a single transaction
+* CLARIFY xml -> csv
+
+mrcom on #clschool suggests:
+
+#+begin_quote
+<mrcom> I'd suggest your code should ingest the data and spit out a CSV or binary data file. Then use one of PG's bulk insert methods to slurp it up.
+#+end_quote
+
+So, dump to CSV and then =COPY=.
+
 * CLARIFY How should we turn this into a command line script?
 
 Image/binary building:
